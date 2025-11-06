@@ -5,7 +5,7 @@
     "description": "users Api",
     "version": "1.0.0"
   },
-  "host": "localhost:3001",
+  "host": "project1-6ksm.onrender.com",
   "basePath": "/",
   "schemes": [
     "http",
