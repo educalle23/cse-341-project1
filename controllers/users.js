@@ -1,17 +1,8 @@
 const mongodb = require("../data/database");
 const { ObjectId } = require("mongodb");
 
-console.log(ObjectId);
-
-// const getAll = async (req, res) => {
-//   const result = await mongodb.getDB().db().collection("users").find();
-//   result.toArray().then((users) => {
-//     res.setHeader("Content-Type", "application/json");
-//     res.status(200).json(users);
-//   });
-// };
-
 const getAll = async (req, res) => {
+  // swagger.tags = ['Users']
   try {
     const result = await mongodb.getDB().db().collection("users").find();
     const users = await result.toArray();
@@ -23,19 +14,9 @@ const getAll = async (req, res) => {
   }
 };
 
-// const getById = async (req, res) => {
-//   console.log("ID recibido:", req.params.id);
-//   console.log("Longitud:", req.params.id?.length);
-//   console.log("Tipo:", typeof req.params.id);
-//   const userId = new ObjectId(req.params.id);
-//   result = await mongodb.getDB().db().collection("users").find({ _id: userId });
-//   result.toArray().then((users) => {
-//     res.setHeader("Content-Type", "application/json");
-//     res.status(200).json(users[0]);
-//   });
-// };
 
 const getById = async (req, res) => {
+  // swagger.tags = ['Users']
   try {
     if (!ObjectId.isValid(req.params.id)) {
       return res.status(400).json({ error: "ID inválido" });
@@ -60,7 +41,56 @@ const getById = async (req, res) => {
   }
 };
 
+const createUser = async (req, res) => {
+  //swagger.tags = ['Users']
+  const user = {
+    firstName: req.body.firstName,
+    lastName: req.body.lastName,
+    email: req.body.email,
+    favoriteColor: req.body.favoriteColor,
+    birthday: req.body.birthday,
+  };
+  const response = await mongodb.getDB().db().collection("users").insertOne(user);
+  if (response.acknowledged) {
+    res.status(204).json(response);
+  } else {
+    res.status(500).json(response.error || "Some error occurred while creating the user.");
+  }
+};
+
+const updateUser = async (req, res) => {
+  //swagger.tags = ['Users']
+  const userId = new ObjectId(req.params.id);
+  const user = {
+    firstName: req.body.firstName,
+    lastName: req.body.lastName,
+    email: req.body.email,
+    favoriteColor: req.body.favoriteColor,
+    birthday: req.body.birthday,
+  }
+  const response = await mongodb.getDB().db().collection("users").replaceOne({ _id: userId }, user);
+  if (response.modifiedCount > 0) {
+    res.status(204).send();
+  } else {
+    res.status(500).json(response.error || "Some error occurred while updating the user.");
+  }
+};
+
+const deleteUser = async (req, res) => {
+  //swagger.tags = ['Users']
+  const userId = new ObjectId(req.params.id);
+  const response = await mongodb.getDB().db().collection("users").deleteOne({ _id: userId });
+  if (response.deletedCount > 0) {
+    res.status(204).send();
+  } else {
+    res.status(500).json(response.error || "Some error occurred while deleting the user.");
+  }
+};
+
 module.exports = {
   getAll,
   getById,
+  createUser,
+  updateUser, 
+  deleteUser
 };
